@@ -7,6 +7,8 @@ pub trait Word:
     + num::traits::WrappingSub
     + std::ops::Shl<Output = Self>
     + std::ops::Shr<Output = Self>
+    + std::ops::BitOr<Output = Self>
+    + std::ops::BitAnd<Output = Self>
 {
     const ZERO: Self;
 
@@ -17,6 +19,8 @@ pub trait Word:
 
     fn from_u8(val: u8) -> Self;
     fn from_usize(val: usize) -> Self;
+
+    fn to_usize(self) -> usize;
 }
 
 impl Word for u8 {
@@ -29,10 +33,13 @@ impl Word for u8 {
     fn from_u8(val: u8) -> Self {
         val
     }
-
     #[inline]
     fn from_usize(val: usize) -> Self {
         val as u8
+    }
+    #[inline]
+    fn to_usize(self) -> usize {
+        self as usize
     }
 }
 
@@ -46,9 +53,34 @@ impl Word for u32 {
     fn from_u8(val: u8) -> Self {
         val as u32
     }
-
     #[inline]
     fn from_usize(val: usize) -> Self {
         val as u32
+    }
+    #[inline]
+    fn to_usize(self) -> usize {
+        self as usize
+    }
+}
+
+#[inline]
+pub fn rotl<W: Word>(val: W, shift: W) -> W {
+    let bits = W::BYTES * 8;
+    let s = shift.to_usize() % bits;
+    if s == 0 {
+        val
+    } else {
+        (val << W::from_usize(s)) | (val >> W::from_usize(bits - s))
+    }
+}
+
+#[inline]
+pub fn rotr<W: Word>(val: W, shift: W) -> W {
+    let bits = W::BYTES * 8;
+    let s = shift.to_usize() % bits;
+    if s == 0 {
+        val
+    } else {
+        (val >> W::from_usize(s)) | (val << W::from_usize(bits - s))
     }
 }
