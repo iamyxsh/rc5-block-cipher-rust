@@ -84,3 +84,36 @@ pub fn rotr<W: Word>(val: W, shift: W) -> W {
         (val >> W::from_usize(s)) | (val << W::from_usize(bits - s))
     }
 }
+
+pub fn expand_key<W: Word>(key: &[u8], rounds: usize) -> Vec<W> {
+    let t = 2 * (rounds + 1);
+    let bytes = W::BYTES;
+    let c = ((8 * key.len()) + (8 * bytes - 1)) / (8 * bytes);
+
+    let mut l = vec![W::ZERO; c];
+    for (i, &b) in key.iter().rev().enumerate() {
+        let idx = i / bytes;
+        l[idx] = (l[idx] << W::from_u8(8)).wrapping_add(&W::from_u8(b));
+    }
+
+    let mut s = Vec::with_capacity(t);
+    s.push(W::P);
+    for i in 1..t {
+        s.push(s[i - 1].wrapping_add(&W::Q));
+    }
+
+    let mut a = W::ZERO;
+    let mut b = W::ZERO;
+    let mut i = 0;
+    let mut j = 0;
+    for _ in 0..(3 * std::cmp::max(t, c)) {
+        a = rotl(s[i].wrapping_add(&a).wrapping_add(&b), W::from_u8(3));
+        s[i] = a;
+        b = rotl(l[j].wrapping_add(&a).wrapping_add(&b), a.wrapping_add(&b));
+        l[j] = b;
+        i = (i + 1) % t;
+        j = (j + 1) % c;
+    }
+
+    s
+}
