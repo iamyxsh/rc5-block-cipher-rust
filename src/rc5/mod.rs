@@ -2,6 +2,7 @@ pub trait Word:
     Clone
     + Copy
     + std::fmt::Debug
+    + std::ops::BitXor<Output = Self>
     + PartialEq
     + num::traits::WrappingAdd
     + num::traits::WrappingSub
@@ -116,4 +117,30 @@ pub fn expand_key<W: Word>(key: &[u8], rounds: usize) -> Vec<W> {
     }
 
     s
+}
+
+#[inline]
+pub fn encrypt<W: Word>(plaintext: [W; 2], key: &[u8], rounds: usize) -> [W; 2] {
+    let sched = expand_key::<W>(key, rounds);
+    let mut a = plaintext[0].wrapping_add(&sched[0]);
+    let mut b = plaintext[1].wrapping_add(&sched[1]);
+
+    for i in 1..=rounds {
+        a = rotl(a ^ b, b).wrapping_add(&sched[2 * i]);
+        b = rotl(b ^ a, a).wrapping_add(&sched[2 * i + 1]);
+    }
+    [a, b]
+}
+
+#[inline]
+pub fn decrypt<W: Word>(ciphertext: [W; 2], key: &[u8], rounds: usize) -> [W; 2] {
+    let sched = expand_key::<W>(key, rounds);
+    let mut a = ciphertext[0];
+    let mut b = ciphertext[1];
+
+    for i in (1..=rounds).rev() {
+        b = rotr(b.wrapping_sub(&sched[2 * i + 1]), a) ^ a;
+        a = rotr(a.wrapping_sub(&sched[2 * i]), b) ^ b;
+    }
+    [a.wrapping_sub(&sched[0]), b.wrapping_sub(&sched[1])]
 }
