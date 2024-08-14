@@ -144,3 +144,50 @@ pub fn decrypt<W: Word>(ciphertext: [W; 2], key: &[u8], rounds: usize) -> [W; 2]
     }
     [a.wrapping_sub(&sched[0]), b.wrapping_sub(&sched[1])]
 }
+
+#[cfg(test)]
+mod encrypt_decrypt_tests {
+    use super::*;
+
+    const ROUNDS: usize = 12;
+
+    #[test]
+    fn u8_round_trip_minimal() {
+        let key = [0u8; 1];
+        let plaintext = [0u8, 0u8];
+        let cipher = encrypt(plaintext, &key, 1);
+        let recovered = decrypt(cipher, &key, 1);
+        assert_eq!(recovered, plaintext);
+    }
+
+    #[test]
+    fn u32_zero_key_known_ciphertext() {
+        let key = vec![0u8; 16];
+        let pt = [0u32, 0u32];
+        let ct = encrypt(pt, &key, ROUNDS);
+        // Known RC5-32/12/16 test vector
+        assert_eq!(ct, [0xEEDBA521, 0x6D8F4B15]);
+        assert_eq!(decrypt(ct, &key, ROUNDS), pt);
+    }
+
+    #[test]
+    fn u32_varied_key_round_trip() {
+        let key = vec![0xAAu8; 16];
+        let pt = [0x12345678_u32, 0x9ABCDEF0];
+        let ct = encrypt(pt, &key, ROUNDS);
+        let recovered = decrypt(ct, &key, ROUNDS);
+        assert_eq!(recovered, pt, "round-trip failed for RAND key");
+    }
+
+    #[test]
+    fn u32_fixed_key_specific_vector() {
+        let key = vec![
+            0x91, 0x5F, 0x46, 0x19, 0xBE, 0x41, 0xB2, 0x51, 0x63, 0x55, 0xA5, 0x01, 0x10, 0xA9,
+            0xCE, 0x91,
+        ];
+        let pt: [u32; 2] = [0x12345678, 0x9ABCDEF0];
+        let ct = encrypt(pt, &key, ROUNDS);
+        assert_eq!(ct, [0xAC13C0F7, 0x52892B5B]);
+        assert_eq!(decrypt(ct, &key, ROUNDS), pt);
+    }
+}
