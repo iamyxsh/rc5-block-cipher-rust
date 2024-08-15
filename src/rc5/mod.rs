@@ -165,7 +165,6 @@ mod encrypt_decrypt_tests {
         let key = vec![0u8; 16];
         let pt = [0u32, 0u32];
         let ct = encrypt(pt, &key, ROUNDS);
-        // Known RC5-32/12/16 test vector
         assert_eq!(ct, [0xEEDBA521, 0x6D8F4B15]);
         assert_eq!(decrypt(ct, &key, ROUNDS), pt);
     }
