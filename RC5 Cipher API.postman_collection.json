@@ -1,0 +1,227 @@
+{
+  "info": {
+    "_postman_id": "af75b448-edb5-4b3e-abe1-a6a38a6d4ee0",
+    "name": "RC5 Cipher API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "34661999"
+  },
+  "item": [
+    {
+      "name": "Ping",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/ping",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["ping"]
+        }
+      },
+      "response": [
+        {
+          "name": "Ping",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/ping",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["ping"]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "plain",
+          "header": [
+            {
+              "key": "content-length",
+              "value": "4"
+            },
+            {
+              "key": "date",
+              "value": "Sat, 07 Jun 2025 08:13:49 GMT"
+            }
+          ],
+          "cookie": [],
+          "body": "pong"
+        }
+      ]
+    },
+    {
+      "name": "Encrypt",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"passphrase\": \"my secret pass\",\n  \"text\": \"Hello, RC5!\",\n  \"filename\": \"out.bin\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/encrypt",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["encrypt"]
+        }
+      },
+      "response": [
+        {
+          "name": "Encrypt",
+          "originalRequest": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"passphrase\": \"my secret pass\",\n  \"text\": \"Hello, RC5!\",\n  \"filename\": \"out.bin\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/encrypt",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["encrypt"]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "plain",
+          "header": [
+            {
+              "key": "content-length",
+              "value": "29"
+            },
+            {
+              "key": "date",
+              "value": "Sat, 07 Jun 2025 08:13:15 GMT"
+            }
+          ],
+          "cookie": [],
+          "body": "Encrypted and written to file"
+        }
+      ]
+    },
+    {
+      "name": "Decrypt",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"passphrase\": \"my secret pass\",\n  \"filename\": \"out.bin\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/decrypt",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["decrypt"]
+        }
+      },
+      "response": [
+        {
+          "name": "Decrypt",
+          "originalRequest": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"passphrase\": \"my secret pass\",\n  \"filename\": \"out.bin\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/decrypt",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["decrypt"]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "content-length",
+              "value": "22"
+            },
+            {
+              "key": "content-type",
+              "value": "application/json"
+            },
+            {
+              "key": "date",
+              "value": "Sat, 07 Jun 2025 08:13:31 GMT"
+            }
+          ],
+          "cookie": [],
+          "body": "{\n    \"text\": \"Hello, RC5!\"\n}"
+        },
+        {
+          "name": "Wrong Passphrase",
+          "originalRequest": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"passphrase\": \"wrong pass\",\n  \"filename\": \"out.bin\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/decrypt",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["decrypt"]
+            }
+          },
+          "status": "Bad Request",
+          "code": 400,
+          "_postman_previewlanguage": "plain",
+          "header": [
+            {
+              "key": "content-length",
+              "value": "46"
+            },
+            {
+              "key": "content-type",
+              "value": "text/plain; charset=utf-8"
+            },
+            {
+              "key": "date",
+              "value": "Sat, 07 Jun 2025 08:14:11 GMT"
+            }
+          ],
+          "cookie": [],
+          "body": "invalid utf-8 sequence of 1 bytes from index 0"
+        }
+      ]
+    }
+  ]
+}
